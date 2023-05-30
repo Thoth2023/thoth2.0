@@ -52,12 +52,12 @@ class ProjectController extends Controller
     /**
      * Display the specified project.
      */
-    public function show(string $id)
+    public function show(string $id, string $tab)
     {
         $project = Project::findOrFail($id);
         $users = $project->users;
         $activities = Activity::where('id_project', $id)->get();
-        return view('projects.show', compact('project'), compact('users'), compact('activities'));
+        return view('projects.'.$tab, compact('project'), compact('users'), compact('activities'));
     }
 
     /**

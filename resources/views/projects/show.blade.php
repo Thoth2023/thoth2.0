@@ -13,12 +13,16 @@
             </div>
             <div class="card-body">
             <div class="nav-wrapper position-relative end-0">
-            <ul class="nav nav-pills nav-fill p-1" role="tablist">
+            <ul class="nav nav-pills nav-fill" role="tablist">
                 <li class="nav-item">
-                <button type="button" class="btn btn-default">Overview</button>
+                    <button type="button" class="btn btn-default"><a 
+                    href="{{ route('projects.show', ['id' => $project->id_project, 'tab' => 'overview']) }}">
+                    Overview</a></button>
                 </li>
                 <li class="nav-item">
-                    <button type="button" class="btn bg-gradient-default">Planning</button>
+                    <button type="button" class="btn bg-gradient-default"><a 
+                    href="{{ route('projects.show', ['id' => $project->id_project, 'tab' => 'planning']) }}">
+                    Planning</a></button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="btn bg-gradient-default">Conducting</button>
@@ -38,12 +42,7 @@
 <div class="row mx-4 mx-auto mt-5">
     <div class="col-12">
         <div class="card bg-secondary">
-            <div class="card-header bg-secondary">
-                <h4>Overview</h4>
-            </div>
-            <div class="card-body">
-            @include('projects.project-overview', ['project' => $project])
-            </div>
+            @yield('tab-content')
         </div>
     </div>
 </div>
