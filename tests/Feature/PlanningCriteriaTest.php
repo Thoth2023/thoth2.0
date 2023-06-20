@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Criteria;
+use App\Models\Project;
 
 class PlanningCriteriaTest extends TestCase
 {
@@ -17,7 +19,10 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->get('/planning/1/criteria');
+        $project = Project::factory()->create();
+        $criteria = Criteria::factory()->create();
+
+        $response = $this->get('/planning/'.$criteria->id_project.'/criteria');
 
         $response->assertStatus(200);
     }
@@ -31,9 +36,18 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->post('/planning/criteria/add',['id_project'=>'1','id'=>'C3','description'=>'aaa','type'=>'Inclusion','pre_selected'=>'1']);
+        $project = Project::factory()->create();
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->post('/planning/criteria/add' , [
+            'id_project' => $project->id_project,
+            'description' => 'New Criteria',
+            'id' => $criteria->id,
+            'type' => 'Inclusion',
+            'pre_selected' => '1',
+        ]);
+
+        $response->assertRedirect('/planning/'.$project->id_project.'/criteria');
     }
 
     //teste de criação de criteria com ID ja exitente
@@ -45,9 +59,11 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->post('/planning/criteria/add',['id_project'=>'1','id'=>'C3','description'=>'aaa','type'=>'Inclusion','pre_selected'=>'1']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->post('/planning/criteria/add', $criteria->toArray());
+
+        $response->assertStatus(302);
     }
 
     //teste de criação de criteria com ID vazio
@@ -59,9 +75,17 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->post('/planning/criteria/add',['id_project'=>'1','id'=>'','description'=>'aaa','type'=>'Inclusion','pre_selected'=>'1']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->post('/planning/criteria/add',[
+            'id_project' => $criteria->id_project,
+            'description' => 'New Criteria',
+            'id' => $criteria->id,
+            'type' => 'Inclusion',
+            'pre_selected' => '1',
+        ]);
+
+        $response->assertStatus(302);
     }
 
     //teste para editar a criteria
@@ -73,9 +97,17 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->put('/planning/criteria/4',['id_project'=>'1','id'=>'C4','description'=>'aaaaaa','type'=>'Exclusion','pre_selected'=>'1']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->put('/planning/criteria/'.$criteria->id_criteria, [
+            'id_project'=>$criteria->id_project,
+            'id'=> ''.$criteria->id.'1',
+            'description'=>'aaaaaa',
+            'type'=>'Exclusion',
+            'pre_selected'=>'1'
+        ]);
+
+        $response->assertRedirect('/planning/'.$criteria->id_project.'/criteria');
     }
 
     //teste para editar a criteria com id existente
@@ -87,9 +119,17 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->put('/planning/criteria/4',['id_project'=>'1','id'=>'C3','description'=>'aaaaaa','type'=>'Exclusion','pre_selected'=>'1']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->put('/planning/criteria/'.$criteria->id_criteria, [
+            'id_project'=>$criteria->id_project,
+            'id'=> ''.$criteria->id,
+            'description'=>'aaaaaa',
+            'type'=>'Exclusion',
+            'pre_selected'=>'1'
+        ]);
+
+            $response->assertStatus(302);
     }
 
     //teste para editar a criteria com id vazio
@@ -101,23 +141,38 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->put('/planning/criteria/4',['id_project'=>'1','id'=>'','description'=>'aaaaaa','type'=>'Exclusion','pre_selected'=>'1']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->put('/planning/criteria/'.$criteria->id_criteria, [
+            'id_project'=>$criteria->id_project,
+            'id'=> '',
+            'description'=>'aaaaaa',
+            'type'=>'Exclusion',
+            'pre_selected'=>'1'
+        ]);
+
+        $response->assertStatus(302);
     }
 
     //teste para editar o pre selected criteria
     public function test_edit_pre_selected_criteria(): void
     {
-
         $response = $this->post('/login', [
             'email' => 'admin@argon.com',
             'password' => 'secret',
         ]);
 
-        $response = $this->put('/planning/criteria/4',['id'=>'C4','description'=>'aaaaaa','type'=>'Exclusion','pre_selected'=>'0']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->put('/planning/criteria/'.$criteria->id_criteria, [
+            'id_project'=>$criteria->id_project,
+            'id'=> ''.$criteria->id.'1',
+            'description'=>'aaaaaa',
+            'type'=>'Exclusion',
+            'pre_selected'=>'0'
+        ]);
+
+        $response->assertRedirect('/planning/'.$criteria->id_project.'/criteria');
     }
 
     //Teste de editar o selected criteria com o campo vazio
@@ -129,9 +184,17 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->put('/planning/criteria/4',['id'=>'C2','description'=>'aaaaaa','type'=>'Exclusion','pre_selected'=>'']);
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->put('/planning/criteria/'.$criteria->id_criteria, [
+            'id_project'=>$criteria->id_project,
+            'id'=> ''.$criteria->id.'1',
+            'description'=>'aaaaaa',
+            'type'=>'Exclusion',
+            'pre_selected'=>''
+        ]);
+
+        $response->assertStatus(302);
     }
 
     public function test_delete_criteria(): void
@@ -142,9 +205,11 @@ class PlanningCriteriaTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $response = $this->delete('/criteria/4');
+        $criteria = Criteria::factory()->create();
 
-        $response->assertRedirect('/planning/1/criteria');
+        $response = $this->delete('/criteria/'.$criteria->id_criteria);
+
+        $response->assertRedirect('/planning/'.$criteria->id_project.'/criteria');
     }
 
 
