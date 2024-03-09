@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Project;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Models\User;
 
 class PlanningOverallInformationControllerAddDateTest extends TestCase
 {
-    use RefreshDatabase; // Reset the database for each test
+    use DatabaseTransactions;
 
     /** @test */
     public function it_adds_dates_to_a_project()
@@ -21,6 +21,11 @@ class PlanningOverallInformationControllerAddDateTest extends TestCase
         $projectId = $project->id_project;
         $startDate = '2023-06-01';
         $endDate = '2023-06-30';
+
+        //acting as the project creator
+        $username = $project->created_by;
+        $user = User::where('username', $username)->first();
+        $this->actingAs($user);
 
         // Send a request to the add date endpoint
         $response = $this->post(route('project.planning_overall.add-date', $projectId), [
